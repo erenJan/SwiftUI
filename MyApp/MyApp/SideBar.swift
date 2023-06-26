@@ -9,23 +9,25 @@ import SwiftUI
 
 struct MenuListItem : Identifiable{
     let id = UUID()
+    let list : String
     let name : String
     let icon : String
     var content : [MenuListItem]?
 }
 //MARK MenuList Items
-let BookLibrary = MenuListItem(name: "Book Library", icon: "books.vertical.fill", content: [MenuListItem(name: "All", icon: "books.vertical.fill"),MenuListItem(name: "Whishlist", icon: "book")])
-let MovieLibrary = MenuListItem(name: "Movie Library", icon: "film.stack", content: [MenuListItem(name: "Watched", icon: "list.and.film"),MenuListItem(name: "Watch List", icon: "film")])
-let Investing = MenuListItem(name : "Investing", icon: "banknote",content : [
-    MenuListItem(name: "Stocks", icon: "dollarsign.circle"),MenuListItem(name: "Gold", icon: "case"),MenuListItem(name: "Crypto", icon: "lock")
+let BookLibrary = MenuListItem(list:"BookListAll", name: "Book Library", icon: "books.vertical.fill", content: [MenuListItem(list:"BookListOwned", name: "All", icon: "books.vertical.fill"),MenuListItem(list:"BookListWhish", name: "Whishlist", icon: "book")])
+let MovieLibrary = MenuListItem(list:"MovieListAll", name: "Movie Library", icon: "film.stack", content: [MenuListItem(list:"MovieListWatched", name: "Watched", icon: "list.and.film"),MenuListItem(list:"MovieListWhish", name: "Watch List", icon: "film")])
+let Investing = MenuListItem(list:"FinanceOverview",name : "Investing", icon: "banknote",content : [
+    MenuListItem(list:"FinanceStoks",name: "Stocks", icon: "dollarsign.circle"),MenuListItem(list:"FinanceGold",name: "Gold", icon: "case"),MenuListItem(list:"FinanceCrypto",name: "Crypto", icon: "lock")
 ])
-let ShoppingList = MenuListItem(name: "Shopping List", icon: "cart")
-let TodoList = MenuListItem(name: "To Do", icon: "list.bullet.clipboard")
+let ShoppingList = MenuListItem(list:"ShoppingList",name: "Shopping List", icon: "cart")
+let TodoList = MenuListItem(list:"TodoList",name: "To Do", icon: "list.bullet.clipboard")
 var bagContents = [TodoList,ShoppingList,Investing,BookLibrary,MovieLibrary]
 
 
 struct SideBar: View {
     @Binding var isSidebarVisible : Bool
+    @Binding var currentList : String
     var sideBarWidth = UIScreen.main.bounds.size.width * 0.7
     
     var body: some View {
@@ -61,7 +63,7 @@ struct SideBar: View {
                     .scaledToFill().frame(width: 100, height: 100)
             VStack(alignment: .leading){
                 Text("Erencan Erel").font(.title2.bold())
-                Text("Computer Engineer").font(.system(size: 14))
+                Text("Jr. Swift Developer").font(.system(size: 14))
             }.padding(.top,20)
             Spacer()
         }
@@ -69,8 +71,15 @@ struct SideBar: View {
     var menuList: some View{
         List(bagContents, children: \.content) {
             row in
-            Image(systemName: row.icon)
-            Text(row.name).font(.title3)
+            HStack{
+                Image(systemName: row.icon)
+                Text(row.name).font(.title3)
+            }.gesture(TapGesture().onEnded {
+                
+                currentList = row.list
+                isSidebarVisible.toggle()
+                }
+            )
         }
     }
     var actionsPanel : some View{
@@ -78,23 +87,24 @@ struct SideBar: View {
             Button(action: {}){
                 HStack{
                     Image(systemName: "gear")
-                    Text("Settigns").font(.title3).padding(.horizontal, 8)
+                    Text("Settigns").font(.system(size: 16)).padding(.horizontal, 8)
                         .cornerRadius(8)
                 }
             }.buttonStyle(.borderedProminent)
+            Spacer()
             Button(action: {}){
                 HStack{
                     Image(systemName: "log.off")
-                    Text("Log Out").font(.title3).padding(.horizontal, 8)
+                    Text("Log Out").font(.system(size: 16)).padding(.horizontal, 8)
                         .cornerRadius(8)
                 }
             }.buttonStyle(.bordered)
-        }.padding(.bottom,40).padding(.top,20)
+        }.padding(12).padding(.bottom,40).padding(.top,20)
     }
 }
 struct SideBar_Previews: PreviewProvider {
     
     static var previews: some View {
-        SideBar(isSidebarVisible: .constant(true))
+        SideBar(isSidebarVisible: .constant(true),currentList: .constant("ToDo"))
     }
 }
