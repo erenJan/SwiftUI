@@ -17,6 +17,11 @@ struct CheckListItem : Hashable{
 struct ContentView: View {
     @State private var editMode = EditMode.inactive
     @State private var showingSheet = false
+    @State private var title = ""
+    @FocusState private var titleIsFocus: Bool
+    @State private var description = "Description for to do "
+    @FocusState private var descriptionIsFocus : Bool
+    @State private var isImportant : Bool = false
     @State var shoppingList : [CheckListItem] = [
         CheckListItem(isChecked: false, title: "Egg",description: "happy chicken egg otherwise do not buy!"),
         CheckListItem(isChecked: false, title: "Milk",description: "if there is no egg, do not buy!"),
@@ -25,7 +30,7 @@ struct ContentView: View {
         CheckListItem(isChecked: true, title: "New Macbook",description: "ask your mac's price first!")
     ]
     
-    
+    var descriptionPlaceHolder = "Description for to do "
     var body: some View {
         NavigationView{
             List(){
@@ -94,13 +99,47 @@ struct ContentView: View {
             VStack(){
                 Rectangle().foregroundColor(Color.gray).frame(width: 100,height: 6).cornerRadius(90)
                 HStack{
-                    Text("New ToDo").padding(.leading,10).padding(.top,16).font(.system(size: 28).bold())
                     Spacer()
                     Text("Dismiss").foregroundColor(Color.red).onTapGesture {
                         showingSheet = false
                     }
                 }
+                TextField(
+                        "example: 10 Eggs",
+                        text: $title
+                        
+                ).font(.title.bold()).lineLimit(1)
+                    .focused($titleIsFocus)
+                    .disableAutocorrection(true)
+                Divider()
+                TextEditor(
+                        text: $description
+                        
+                ).font(.title3).foregroundColor(description == descriptionPlaceHolder ? .gray : .primary).frame(height: 100)
+                    
+                    .focused($titleIsFocus).lineLimit(4)
+                    .disableAutocorrection(true).onTapGesture {
+                        if description == descriptionPlaceHolder {
+                            description = ""
+                        }
+                    }
+                Spacer()
+                ZStack{
+                    Rectangle().cornerRadius(16).foregroundColor(Color.gray).opacity(0.1).frame(height: 60)
+                    Toggle("Required", isOn: $isImportant).padding(16)
+                }
+                ZStack{
+                    Rectangle().cornerRadius(16).foregroundColor(Color.gray).opacity(0.1).frame(height: 60)
+                    Toggle("Required", isOn: $isImportant).padding(16)
+                }
                 
+                Spacer()
+                Button(action: {onAdd(title:title,description:description)}){
+                    Text("Save").font(.title).padding(.horizontal, 8)
+                        .frame(width: 200,height: 44)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }.buttonStyle(.borderedProminent)
             }
         )
     }
@@ -110,11 +149,8 @@ struct ContentView: View {
     private func onMove(source: IndexSet, destination: Int) {
         shoppingList.move(fromOffsets: source, toOffset: destination)
     }
-    func onAdd() {
-        NavigationView {
-                Text("deneme")
-            }
-            .navigationViewStyle(StackNavigationViewStyle())
+    func onAdd(title:String,description:String?) {
+        
     }
     func didDismiss() {
         // Handle the dismissing action.
